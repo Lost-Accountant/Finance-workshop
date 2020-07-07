@@ -1,0 +1,11 @@
+---
+title: "Code for Finance workshop"
+author: "Zhengkai Fu"
+date: "07/07/2020"
+output: html_document
+---
+
+# Simulation for diversification
+## Perfect Correlation
+```{r create 2 perfectly correlated assets}
+```
