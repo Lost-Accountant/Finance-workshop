@@ -22,10 +22,6 @@ combined_return <- data.frame(cbind(asset_1_return, asset_2_return))
 cor(asset_1_return, asset_2_return)
 sqrt(var(asset_2_return))
 
-combined_return %>%
-  ggplot(aes(x=asset_1_return, y = asset_2_return)) +
-  geom_point
-
 # 2 assets' summary
 mean_1 = mean(asset_1_return)
 mean_2 = mean(asset_2_return)
@@ -34,11 +30,27 @@ sd_2 = sqrt(var(asset_2_return))
 avg_perfect <-  data.frame(cbind(c(mean_1, mean_2), c(sd_1, sd_2)))
 colnames(avg_perfect) <- c("mean", "stdev")
 
-# TODO: ASSET COMBINATION OF 2 AND ADD INTO PLOT BELOW
-
 avg_perfect %>%
   ggplot(aes(x=stdev, y=mean)) +
   geom_point()
 
+## mix options, sequence from 0.01 (1% of asset 1) to 1.00 (100% of asset 1)
+mix <- seq(100)/100
 
+# each column is a mix option
+perfect_porfolio <- data.frame(mix[1] * asset_1_return + (1-mix[1]) * asset_2_return)
+for (i in (2:100)){
+  temp = mix[i] * asset_1_return + (1-mix[i]) * asset_2_return
+  perfect_porfolio <- cbind(perfect_porfolio, temp)
+}
+
+# change column names
+col_names_mix <- c(paste0(1:100, "%"))
+colnames(perfect_porfolio) <- col_names_mix
+
+# plot combination
+data.frame(sapply(perfect_porfolio, sd), sapply(perfect_porfolio, mean)) %>%
+  `colnames<-`(c("sd", "mean")) %>%
+  ggplot(aes(x=sd, y=mean)) +
+  geom_point()
 ```
