@@ -12,12 +12,19 @@ library(tidyverse)
 # Simulation for diversification
 ## Perfect Correlation
 ```{r create 2 perfectly correlated assets}
-asset_1_return <- rnorm(100, mean = 0.03, sd = 0.02)
+asset_1_return <- data.frame(return = rnorm(100, mean = 0.03, sd = 0.02))
 
 # perfect linear correlation
-asset_2_return <- 0.09 + asset_1_return * 1.8
+asset_2_return <- data.frame(return = 0.09 + asset_1_return * 1.8)
 
-combined_return <- data.frame(cbind(asset_1_return, asset_2_return))
+combined_return <- data.frame(cbind(asset_1_return, asset_2_return)) %>%
+  `colnames<-`(c("asset1", "asset2"))
+
+
+# plot 2 assets' returns
+ggplot(combined_return) +
+  geom_histogram(aes(asset1), fill = 'red', alpha = 0.6) +
+  geom_histogram(aes(asset2), fill = 'blue', alpha = 0.6)
 
 cor(asset_1_return, asset_2_return)
 sqrt(var(asset_2_return))
@@ -53,4 +60,8 @@ data.frame(sapply(perfect_porfolio, sd), sapply(perfect_porfolio, mean)) %>%
   `colnames<-`(c("sd", "mean")) %>%
   ggplot(aes(x=sd, y=mean)) +
   geom_point()
+```
+
+## 80% Positively Correlated
+```{r 80% correlated}
 ```
