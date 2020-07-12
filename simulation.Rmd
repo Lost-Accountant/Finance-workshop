@@ -10,47 +10,115 @@ library(tidyverse)
 ```
 
 # Simulation for diversification
-## Perfect Correlation
-```{r create 2 perfectly correlated assets}
-asset_1_return <- rnorm(100, mean = 0.03, sd = 0.02)
+```{r create 4 simulated assets}
+set.seed(202001303)
 
-# perfect linear correlation
-asset_2_return <- 0.09 + asset_1_return * 1.8
+asset_1 <- data.frame(return = rnorm(100, mean = 0.03, sd = 0.02))
 
-combined_return <- data.frame(cbind(asset_1_return, asset_2_return))
+# perfect positive linear correlation
+asset_2 <- data.frame(return = 0.09 + asset_1 * 1.8)
+## theoretical mean: 0.09 + 0.03 * 1.8 = 0.144
+## theoretical var: 1.8^2 * 0.02^2
+## theoretical sd: 1.8 * 0.02 = 0.036
 
-cor(asset_1_return, asset_2_return)
-sqrt(var(asset_2_return))
 
-# 2 assets' summary
-mean_1 = mean(asset_1_return)
-mean_2 = mean(asset_2_return)
-sd_1 = sqrt(var(asset_1_return))
-sd_2 = sqrt(var(asset_2_return))
-avg_perfect <-  data.frame(cbind(c(mean_1, mean_2), c(sd_1, sd_2)))
-colnames(avg_perfect) <- c("mean", "stdev")
+# perfect negative linear correlation
+asset_3 <- data.frame(return = 0.198 - asset_1 * 1.8)
+## theoretical mean: 0.198 - 0.03 * 1.8 = 0.144
+## theoretical var: 1.8^2 * 0.02^2
+## theoretical sd: 1.8 * 0.02 = 0.036
 
-avg_perfect %>%
-  ggplot(aes(x=stdev, y=mean)) +
-  geom_point()
+# somewhere in between correlated
+asset_4 <- data.frame(return = rnorm(100, mean = 0.144, sd = 0.036))
 
+
+combined_return <- data.frame(cbind(asset_1, asset_2, asset_3, asset_4)) %>%
+  `colnames<-`(c("asset1", "asset2", "asset3", "asset4"))
+
+
+# plot 4 assets' returns
+ggplot(combined_return) +
+  geom_histogram(aes(asset1), fill = 'red', alpha = 0.4) +
+  geom_histogram(aes(asset2), fill = 'blue', alpha = 0.4) +
+  geom_histogram(aes(asset3), fill = 'green', alpha = 0.4) +
+  geom_histogram(aes(asset4), fill = "yellow", alpha = 0.4)
+
+cor(asset_1, asset_2)
+cor(asset_1, asset_3)
+cor(asset_1, asset_4)
+
+# 4 assets' summary
+## mean
+mean_1 = mean(asset_1$return)
+mean_2 = mean(asset_2$return)
+mean_3 = mean(asset_3$return)
+mean_4 = mean(asset_4$return)
+
+## sd
+sd_1 = sqrt(var(asset_1$return))
+sd_2 = sqrt(var(asset_2$return))
+sd_3 = sqrt(var(asset_3$return))
+sd_4 = sqrt(var(asset_4$return))
+
+# plot result of 4 simulated assets
+tibble(sapply(combined_return, sd), sapply(combined_return, mean)) %>%
+  `colnames<-`(c("sd", "mean")) %>%
+  ggplot(aes(x=sd, y=mean)) +
+    geom_point()
+```
+
+
+# Mixing assets
+```{r combine}
+#### PERFECTLY POSITIVE ####
 ## mix options, sequence from 0.01 (1% of asset 1) to 1.00 (100% of asset 1)
 mix <- seq(100)/100
 
 # each column is a mix option
-perfect_porfolio <- data.frame(mix[1] * asset_1_return + (1-mix[1]) * asset_2_return)
+positive_porfolio <- data.frame(mix[1] * asset_1 + (1-mix[1]) * asset_2)
 for (i in (2:100)){
-  temp = mix[i] * asset_1_return + (1-mix[i]) * asset_2_return
-  perfect_porfolio <- cbind(perfect_porfolio, temp)
+  temp = mix[i] * asset_1 + (1-mix[i]) * asset_2
+  positive_porfolio <- cbind(positive_porfolio, temp)
 }
 
 # change column names
 col_names_mix <- c(paste0(1:100, "%"))
-colnames(perfect_porfolio) <- col_names_mix
+colnames(positive_porfolio) <- col_names_mix
 
-# plot combination
-data.frame(sapply(perfect_porfolio, sd), sapply(perfect_porfolio, mean)) %>%
-  `colnames<-`(c("sd", "mean")) %>%
-  ggplot(aes(x=sd, y=mean)) +
-  geom_point()
+positive_portfolio_result <- data.frame(sapply(positive_porfolio, sd), sapply(positive_porfolio, mean)) %>%
+  `colnames<-`(c("sd", "mean"))
+
+#### PERFECTLY NEGATIVE ####
+negative_portfolio <- data.frame(mix[1] * asset_1 + (1-mix[1]) * asset_3)
+for (i in (2:100)){
+  temp = mix[i] * asset_1 + (1-mix[i]) * asset_3
+  negative_portfolio <- cbind(negative_portfolio, temp)
+}
+
+# cahnge column names
+colnames(negative_portfolio) <- col_names_mix
+
+negative_portfolio_result <- data.frame(sapply(negative_portfolio, sd), sapply(negative_portfolio, mean)) %>%
+  `colnames<-`(c("sd", "mean"))
+
+#### IN BETWEEN ####
+middle_portfolio <- data.frame(mix[1] * asset_1 + (1-mix[1]) * asset_4)
+for (i in (2:100)){
+  temp = mix[i] * asset_1 + (1-mix[i]) * asset_4
+  middle_portfolio <- cbind(middle_portfolio, temp)
+}
+
+# cahnge column names
+colnames(middle_portfolio) <- col_names_mix
+
+middle_portfolio_result <- data.frame(sapply(middle_portfolio, sd), sapply(middle_portfolio, mean)) %>%
+  `colnames<-`(c("sd", "mean"))
+
+
+#### plot combination ####
+ggplot(NULL, aes(x=sd, y=mean)) +
+  geom_point(data = positive_portfolio_result, color = 'blue') +
+  geom_point(data = negative_portfolio_result, color = "green") +
+  geom_point(data = middle_portfolio_result, color = "yellow") +
+  theme_bw()
 ```
