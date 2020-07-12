@@ -1,0 +1,32 @@
+---
+title: "handout (complete version)"
+author: "Zhengkai Fu"
+date: "12/07/2020"
+output: html_document
+---
+# Load Library
+```{r setup, message = FALSE}
+library(tidyverse)  # good old tidyverse, just in case
+library(quantmod)   # get information about stocks
+```
+
+# 1. Get stocks with "quantmod"
+```{r get stocks}
+# choose 2 stocks and 1 index
+# example: AMAZON, APPLE, and SP500
+
+# AMAZON
+amazon <- getSymbols('AMZN', src = 'yahoo', from = '2010-01-01')
+
+
+# APPLE
+apple <- 'AAPL'
+
+# SP500
+sp <- '^GSPC'
+# index usually has '^' before its code name.
+```
+
+quantmod retrieves stock information based on their code name, and you can easily look up those code name with yahoo finance, which is also the source of the information we grabbed ("src = 'yahoo' ").
+
+It was possible to set information source as google finance but it has been discontinued.
