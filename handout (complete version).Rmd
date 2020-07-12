@@ -2,7 +2,9 @@
 title: "handout (complete version)"
 author: "Zhengkai Fu"
 date: "12/07/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 # Load Library
 ```{r setup, message = FALSE}
