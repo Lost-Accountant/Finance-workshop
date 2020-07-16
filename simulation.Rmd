@@ -2,11 +2,16 @@
 title: "Code for Finance workshop"
 author: "Zhengkai Fu"
 date: "07/07/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 # Load library
 ```{r library, message=FALSE}
 library(tidyverse)
+library(quantmod)
+library(anytime)
+library(xts)
 ```
 
 # Simulation for diversification
@@ -121,4 +126,54 @@ ggplot(NULL, aes(x=sd, y=mean)) +
   geom_point(data = negative_portfolio_result, color = "green") +
   geom_point(data = middle_portfolio_result, color = "yellow") +
   theme_bw()
+```
+
+# Compare volatility
+## Get Tesla, NASDAQ data
+```{r get stocks}
+nasdaq <- getSymbols("^IXIC", src = "yahoo")
+tesla <- getSymbols("TSLA", src = "yahoo")
+
+# use close price
+## despite of command above, the result of nasdaq is not stored in "nasdaq" but in "IXIC"
+## same for tesla
+nasdaq <- IXIC$IXIC.Close
+tesla <- TSLA$TSLA.Close
+```
+
+## Plot 2 assets
+```{r plot assets}
+plot.xts(nasdaq, grid.col = 'white',  yaxis.right = FALSE, 
+         main = 'NASDAQ Composite Index')
+
+plot.xts(tesla, grid.col = 'white', yaxis.right = FALSE, 
+         main = 'Tesla stock')
+
+# plot returns
+nasdaq_return <- diff(log(nasdaq))
+tesla_return <- diff(log(tesla))
+
+plot.xts(nasdaq_return)
+plot.xts(tesla_return)
+
+# plot dynamic variance
+nasdaq_var <- nasdaq_return^2
+tesla_var <- tesla_return^2
+
+plot.xts(nasdaq_var)
+plot.xts(tesla_var)
+
+# There are better models to actually fit volatility. Methods above are just for simple demonstration purpose.
+```
+
+## Table for comparison
+```{r table}
+nasdaq_row <- cbind(mean(nasdaq_return, na.rm=TRUE), mean(sqrt(nasdaq_var), na.rm=TRUE))
+tesla_row <- cbind(mean(tesla_return, na.rm=TRUE), mean(sqrt(tesla_var), na.rm=TRUE))
+
+table <- data.frame(rbind(nasdaq_row, tesla_row))
+colnames(table) <- c("average return", "average sd")
+rownames(table) <- c("NASDAQ", "TESLA")
+
+kableExtra::kable(table, format = "markdown")
 ```
