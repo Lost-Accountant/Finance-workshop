@@ -15,20 +15,62 @@ library(quantmod)   # get information about stocks
 # 1. Get stocks with "quantmod"
 ```{r get stocks}
 # choose 2 stocks and 1 index
-# example: AMAZON, APPLE, and SP500
+# example: apple, walmart, and SP500
 
-# AMAZON
-amazon <- getSymbols('AMZN', src = 'yahoo', from = '2010-01-01')
+# APPLE
+apple <- getSymbols('AAPL', src = 'yahoo', from = '2010-01-01')
 
 
 # APPLE
-apple <- 'AAPL'
+walmart <- getSymbols("WMT", src = 'yahoo', from = '2010-01-01')
 
 # SP500
-sp <- '^GSPC'
+sp <- getSymbols('^GSPC', src = 'yahoo', from = '2010-01-01')
 # index usually has '^' before its code name.
 ```
 
 quantmod retrieves stock information based on their code name, and you can easily look up those code name with yahoo finance, which is also the source of the information we grabbed ("src = 'yahoo' ").
 
 It was possible to set information source as google finance but it has been discontinued.
+
+# 2. Various way to plot
+
+An important detail is that quantmod does not store the stock data on the variable you assigned. All the data would create a new variable with the variable name being the stock code used above, and the variable name you used to trigger the function is merely a character variable.
+
+## Quantmod
+```{r plot with quantmod}
+barChart(AAPL)
+barChart(WMT)
+barChart(GSPC)
+```
+
+The coolest looking option. It shows up with green and down with red, and the upper portion is the price of the stock while the lower portion shows the trading volume for each day.
+
+The biggest disadvantage is that the chart is not a ggplot or base R plot, and I haven't found any ways to customize this.
+
+## XTS
+```{r xts plot}
+# extract close price for each stock
+apple_close <- AAPL$AAPL.Close
+walmart_close <- WMT$WMT.Close
+sp_close <- GSPC$GSPC.Close
+
+# plot with xts
+plot.xts(apple_close, grid.col = 'white', yaxis.right = FALSE,
+         main = "Price of Apple stock", )
+plot.xts(walmart_close, grid.col = 'white', yaxis.right = FALSE,
+         main = "Price of Walmart stock", )
+plot.xts(sp_close, grid.col = 'white', yaxis.right = FALSE,
+         main = "Value of S&P 500 Index" )
+```
+
+Xts is a very powerful class of data designed for time series that involves real dates. 
+
+The plot generated is very close to base R with many shared syntax and options, which provides some degree of customizability, and it plots exactly what we need. In fact, if xts package is loaded, using the function plot() would get the exact same result as demonstrated above.
+
+# 3. Rate of Return
+
+
+# 4. Dynamic Variance
+
+
