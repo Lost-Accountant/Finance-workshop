@@ -66,8 +66,8 @@ plot.xts(sp_close, grid.col = 'white', yaxis.right = FALSE,
 # plot all in 1
 plot.xts(cbind(apple_close, walmart_close),
          main = "Price of AAPL and WMT")
-
 addLegend(legend.loc = "topleft", legend.names = c("AAPL", "WMT"), lty = 1)
+
 ```
 
 Xts is a very powerful class of data designed for time series that involves real dates. 
@@ -105,7 +105,8 @@ sp_return <- na.omit(diff(log(sp_close)))
 # combine 3 assets' return into 1 variable
 all_return <- cbind(apple_return, walmart_return, sp_return)
 
-plot.xts(all_return)
+#plot.xts(all_return)
+addLegend(legend.loc = "topleft", legend.names = c("AAPL", "WMT", 'SP500'), lty = 1)
 
 # a table of average return for easy demonstration
 return_table <- data.frame(sapply(all_return, mean))
@@ -137,3 +138,17 @@ $$Var(Y_t) = E(Y_t^2) - E(Y_t)^2 = E(Y_t^2)$$
 This is a measurment of how far each observation deviates from their expected result at that point in time. For financial assets, the expected mean of return is usually considered zero. (For more information, please look up "Stationarity").
 
 ## Implementation
+```{r dynamic variance and plot it}
+# obtain variance for each point in time
+apple_var <- apple_return^2
+walmart_var <- walmart_return^2
+sp_var <- sp_return^2
+
+# plot them 
+plot.xts(apple_var, main = "variance for Apple")
+plot.xts(walmart_var, main = "variance for Walmart")
+plot.xts(sp_var, main = "variance for SP500")
+```
+
+
+5. Apply the portfolio optimization formula
