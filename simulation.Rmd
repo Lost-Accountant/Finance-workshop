@@ -131,49 +131,53 @@ ggplot(NULL, aes(x=sd, y=mean)) +
 # Compare volatility
 ## Get Tesla, NASDAQ data
 ```{r get stocks}
-nasdaq <- getSymbols("^IXIC", src = "yahoo")
+sp <- getSymbols("^GSPC", src = "yahoo")
 tesla <- getSymbols("TSLA", src = "yahoo")
 
 # use close price
 ## despite of command above, the result of nasdaq is not stored in "nasdaq" but in "IXIC"
 ## same for tesla
-nasdaq <- IXIC$IXIC.Close
+sp <- GSPC$GSPC.Close
 tesla <- TSLA$TSLA.Close
 ```
 
 ## Plot 2 assets
 ```{r plot assets}
-plot.xts(nasdaq, grid.col = 'white',  yaxis.right = FALSE, 
-         main = 'NASDAQ Composite Index')
+plot.xts(sp, grid.col = 'white',  yaxis.right = FALSE, 
+         main = 'SP500 Composite Index')
 
 plot.xts(tesla, grid.col = 'white', yaxis.right = FALSE, 
          main = 'Tesla stock')
 
 # plot returns
-nasdaq_return <- diff(log(nasdaq))
+sp_return <- diff(log(sp))
 tesla_return <- diff(log(tesla))
 
-plot.xts(nasdaq_return)
+plot.xts(sp_return)
 plot.xts(tesla_return)
 
 # plot dynamic variance
-nasdaq_var <- nasdaq_return^2
+sp_var <- sp_return^2
 tesla_var <- tesla_return^2
 
-plot.xts(nasdaq_var)
+plot.xts(sp_var)
 plot.xts(tesla_var)
 
 # There are better models to actually fit volatility. Methods above are just for simple demonstration purpose.
+
+plot.xts(cbind(sp_return, tesla_return), main = "Return: SP500 vs TESLA")
+plot.xts(cbind(sp_var, tesla_var), main = "Variance: SP500 vs TESLA")
 ```
 
 ## Table for comparison
 ```{r table}
-nasdaq_row <- cbind(mean(nasdaq_return, na.rm=TRUE), mean(sqrt(nasdaq_var), na.rm=TRUE))
-tesla_row <- cbind(mean(tesla_return, na.rm=TRUE), mean(sqrt(tesla_var), na.rm=TRUE))
+sp_row <- cbind(mean(sp_return, na.rm=TRUE), mean(sp_var, na.rm=TRUE))
+tesla_row <- cbind(mean(tesla_return, na.rm=TRUE), mean(tesla_var, na.rm=TRUE))
 
-table <- data.frame(rbind(nasdaq_row, tesla_row))
-colnames(table) <- c("average return", "average sd")
-rownames(table) <- c("NASDAQ", "TESLA")
+table <- data.frame(rbind(sp_row, tesla_row))
+colnames(table) <- c("average return", "average var")
+table <- mutate(table, return_vs_risk = `average return`/`average var`)
+rownames(table) <- c("SP500", "TESLA")
 
 kableExtra::kable(table, format = "markdown")
 ```

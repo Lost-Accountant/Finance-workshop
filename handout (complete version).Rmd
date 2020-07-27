@@ -152,3 +152,8 @@ plot.xts(sp_var, main = "variance for SP500")
 
 
 5. Apply the portfolio optimization formula
+
+$$L = w_1^2\sigma_1^2 + w_2^2\sigma_2^2 + \lambda(\overline{\mu}_p - w_1\mu_1 - w_2\mu_2) $$
+$$w_1 = \frac{\mu_1/\sigma_1^2}{\mu_1^2/\sigma_1^2 + \mu_2^2/\sigma_2^2}\overline{\mu_p}$$
+$$w_2 = \frac{\mu_2/\sigma_2^2}{\mu_1^2/\sigma_1^2 + \mu_2^2/\sigma_2^2}\overline{\mu_p}$$
+
