@@ -105,7 +105,7 @@ sp_return <- na.omit(diff(log(sp_close)))
 # combine 3 assets' return into 1 variable
 all_return <- cbind(apple_return, walmart_return, sp_return)
 
-#plot.xts(all_return)
+plot.xts(all_return)
 addLegend(legend.loc = "topleft", legend.names = c("AAPL", "WMT", 'SP500'), lty = 1)
 
 # a table of average return for easy demonstration
