@@ -1,0 +1,120 @@
+---
+title: "handout (incomplete version)"
+author: "Zhengkai Fu"
+date: "12/08/2020"
+output: pdf_document
+---
+
+# Load Library
+```{r setup, message = FALSE}
+library(tidyverse)  # good old tidyverse, just in case
+library(quantmod)   # get information about stocks
+```
+
+# 1. Get stocks with "quantmod"
+```{r get stocks}
+# choose 2 stocks and 1 index
+# example: 2 stocks, and SP500
+
+# Stock 1
+stcok1 <- getSymbols('    ', src = 'yahoo', from = '2010-01-01')
+
+
+# Stock 2
+stock2 <- getSymbols("    ", src = 'yahoo', from = '2010-01-01')
+
+# SP500
+sp <- getSymbols('^GSPC', src = 'yahoo', from = '2010-01-01')
+# index usually has '^' before its code name.
+```
+
+
+quantmod retrieves stock information based on their code name, and you can easily look up those code name with yahoo finance, which is also the source of the information we grabbed ("src = 'yahoo' ").
+
+It was possible to set information source as google finance but it has been discontinued.
+
+# 2. Various way to plot
+
+An important detail is that quantmod does not store the stock data on the variable you assigned. All the data would create a new variable with the variable name being the stock code used above, and the variable name you used to trigger the function is merely a character variable.
+
+## Quantmod
+```{r plot with quantmod}
+# fill in the stock codes for stock 1 and stock 2
+barChart(    )
+barChart(    )
+barChart(GSPC)
+```
+
+The coolest looking option. It shows up with green and down with red, and the upper portion is the price of the stock while the lower portion shows the trading volume for each day.
+
+The biggest disadvantage is that the chart is not a ggplot or base R plot, and I haven't found any ways to customize this.
+
+## XTS
+```{r xts plot}
+# extract close price for each stock
+stock1_close <-     $    .Close
+stock2_close <-     $    .Close
+sp_close <- GSPC$GSPC.Close
+
+# plot with xts
+
+
+# plot all in 1
+{a function}(cbind(stock1_close, stock2_close),
+         main = "Price of      and     ")
+addLegend(legend.loc = "topleft", legend.names = c("     ", "    "), lty = 1)
+
+```
+
+Xts is a very powerful class of data designed for time series that involves real dates. 
+
+The plot generated is very close to base R with many shared syntax and options, which provides some degree of customizability, and it plots exactly what we need. In fact, if xts package is loaded, using the function plot() would get the exact same result as demonstrated above.
+
+# 3. Rate of Return
+## Normal way
+$$ r = \frac{y_2 - y_1}{y_1} $$
+
+## Better way
+$$ r = log(y_2) - log(y_1) = log(y_2/y_1)$$
+
+They are not the same in value, but the difference is usually small enough for assets in real world.
+
+Advantages of logarithmic return:
+
+   - Logarithmic returns are symmetric, while ordinary returns are not: positive and negative percent ordinary returns of equal magnitude do not cancel each other out and result in a net change, but logarithmic returns of equal magnitude but opposite signs will cancel each other out. This means that an investment of \$100 that yields an arithmetic return of 50% followed by an arithmetic return of -50% will result in \$75, while an investment of \$100 that yields a logarithmic return of 50% followed by a logarithmic return of -50% will come back to \$100.
+    
+   - Logarithmic return is also called the continuously compounded return. This means that the frequency of compounding does not matter, making returns of different assets easier to compare.
+   
+   - Logarithmic returns are time-additive, meaning that if $R_{\mathrm {log} ,1}$ and ${\displaystyle R_{\mathrm {log} ,2}}$ are logarithmic returns in successive periods, then the overall logarithmic return ${\displaystyle R_{\mathrm {log} }}$ is the sum of the individual logarithmic returns, i.e. ${\displaystyle R_{\mathrm {log} }=R_{\mathrm {log} ,1}+R_{\mathrm {log} ,2}}$.
+   - The use of logarithmic returns prevents investment prices in models from becoming negative.
+
+## Implementation
+```{r rate of return}
+# difference in log value
+stock1_return <- 
+stock2_return <- 
+sp_return <- 
+
+# use na.omit() because first day has no previous day to calculate its return, producing NA
+
+
+# combine 3 assets' return into 1 variable
+all_return <- cbind(stock1_return, stock2_return, sp_return)
+
+# plot them all
+
+# a table of average return for easy demonstration
+return_table <- data.frame(sapply(all_return, mean))
+rownames(return_table) <- c(stock1, stock2, "SP500")
+colnames(return_table) <- "Average return"
+
+kableExtra::kable(return_table, format = "markdown")
+```
+
+Looks like they are mostly fluctuatiing around 0%.
+
+# 4. Dynamic Variance
+
+There are many ways to measure variance in time series, some giving equal weight to every past observation and others give more weight to recent observations. Many require modelling.
+
+To keep it simple, the 2 types of variance we use here are:
