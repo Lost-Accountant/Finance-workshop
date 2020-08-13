@@ -118,3 +118,65 @@ Looks like they are mostly fluctuatiing around 0%.
 There are many ways to measure variance in time series, some giving equal weight to every past observation and others give more weight to recent observations. Many require modelling.
 
 To keep it simple, the 2 types of variance we use here are:
+
+## Equal weight 
+```{r create variance table}
+sd_table <- cbind(return_table, sapply(all_return,     ))
+colnames(sd_table)[2] <- "SD"
+
+kableExtra::kable(sd_table, format = "markdown")
+```
+
+
+## Every point in time
+
+Since each observation in time series is a realization of a distribution unique to that point in time, we can calculate standard deviation or variance in this way:
+$$Var(Y_t) = E(Y_t^2) - E(Y_t)^2 = E(Y_t^2)$$
+This is a measurment of how far each observation deviates from their expected result at that point in time. For financial assets, the expected mean of return is usually considered zero. (For more information, please look up "Stationarity").
+
+## Implementation
+```{r dynamic variance and plot it}
+# obtain variance for each point in time
+stock1_var <- 
+stock2_var <- 
+sp_var <- 
+
+# plot them 
+{plot function}(apple_var, main = "variance for     ")
+{plot function}(walmart_var, main = "variance for     ")
+{plot function}(sp_var, main = "variance for SP500")
+```
+
+
+
+# 5. Apply the portfolio optimization formula
+
+$$L = w_1^2\sigma_1^2 + w_2^2\sigma_2^2 + \lambda(\overline{\mu}_p - w_1\mu_1 - w_2\mu_2) $$
+$$w_1 = \frac{\mu_1/\sigma_1^2}{\mu_1^2/\sigma_1^2 + \mu_2^2/\sigma_2^2}\overline{\mu_p}$$
+$$w_2 = \frac{\mu_2/\sigma_2^2}{\mu_1^2/\sigma_1^2 + \mu_2^2/\sigma_2^2}\overline{\mu_p}$$
+
+```{r find weight}
+# a realistic goal
+goal <- 
+
+denominator <- sd_table$`Average return`[1]^2/sd_table$SD[1]^2 + sd_table$`Average return`[2]^2/sd_table$SD[2]^2
+
+w1 <- 
+w2 <- 
+
+# the sum becomes 1 or 100%
+w1_reweight <- w1 / (w1+w2)
+w2_reweight <- w2 / (w1+w2)
+
+portfolio <- stock1_close *      + stock2_close *     
+portfolio_return <- na.omit(diff(log(portfolio)))
+
+portfolio_table <- rbind(sd_table, c(mean(portfolio_return), sd(portfolio_return)))
+rownames(portfolio_table)[4] <- "portfolio"
+
+kableExtra::kable(portfolio_table)
+```
+
+The return is not exactly what we expected because those two assets are not uncorrelated in real life. Their correlation is roughly `r round(cor(stock1_return, stock2_return),3)`. 
+
+Also we have constructed a portfolio that has much higher return than SP500 while having slightly higher risk. But whether this portfolio can perform better in long term in the future is unknown.
